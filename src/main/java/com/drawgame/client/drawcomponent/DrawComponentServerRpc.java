@@ -1,11 +1,17 @@
 package com.drawgame.client.drawcomponent;
 
-import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.communication.ServerRpc;
 
 public interface DrawComponentServerRpc extends ServerRpc {
+	
+	public void loadDrawing();
 
-	// TODO example API
-	public void clicked(MouseEventDetails mouseDetails);
-
+	public void addStrokeToDrawing(Stroke stroke);
+	
+	/**
+	 * frequently polled by client
+	 * server pushes are not received until client makes a request
+	 */
+	public void rpcPingPong();
+	
 }

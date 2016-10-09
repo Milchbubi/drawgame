@@ -2,6 +2,7 @@ package com.drawgame.client.drawcomponent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class Stroke implements Serializable {
@@ -30,16 +31,35 @@ public class Stroke implements Serializable {
 		return color;
 	}
 	
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
 	public double getThickness() {
 		return thickness;
+	}
+	
+	public void setThickness(double thickness) {
+		this.thickness = thickness;
 	}
 	
 	public void addCoordinate(Coordinate coordinate) {
 		coordinates.add(coordinate);
 	}
 	
-	public ArrayList<Coordinate> getCoordinates() {
+	/**
+	 * @return List because ArrayList seems broken for server-rpc (vaadin 7.7.3)
+	 */
+	public List<Coordinate> getCoordinates() {
 		return coordinates;
+	}
+	
+	public ArrayList<Coordinate> getCoordinatesAsArrayList() {
+		return coordinates;
+	}
+	
+	public void setCoordinates(ArrayList<Coordinate> coordinates) {
+		this.coordinates = coordinates;
 	}
 	
 }

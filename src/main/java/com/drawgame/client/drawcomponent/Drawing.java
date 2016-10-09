@@ -16,4 +16,8 @@ public class Drawing implements Serializable {
 		return strokes;
 	}
 	
+	public void setStrokes(ArrayList<Stroke> strokes) {
+		this.strokes = strokes;
+	}
+	
 }
