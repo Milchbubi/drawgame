@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -35,16 +36,14 @@ public class DrawComponentWidget extends SimplePanel {
 		setCanvasSize();
 		setWidget(canvas);
 		
-//		drawing.addMouseDownHandler(event -> {
-//			currentStroke = true;
+//		canvas.addMouseDownHandler(event -> {
+//			beginCurrentStroke(event.getX(),event.getY());
 //		});
-//		drawing.addMouseMoveHandler(event -> {
-//			if (true == currentStroke) {
-//				drawPoint(event.getX(), event.getY(), 10);
-//			}
+//		canvas.addMouseMoveHandler(event -> {
+//			extendCurrentStroke(event.getX(), event.getY());
 //		});
-//		drawing.addMouseUpHandler(event -> {
-//			currentStroke = false;
+//		canvas.addMouseUpHandler(event -> {
+//			finishCurrentStroke();
 //		});
 		canvas.addMouseDownHandler(new MouseDownHandler() {
 			@Override
@@ -93,53 +92,58 @@ public class DrawComponentWidget extends SimplePanel {
 		drawStroke(stroke, 10);
 	}
 	
-	public void drawStroke(Stroke stroke) {
+	public void drawStroke(Stroke stroke) {		
+		drawStrokeFirstPoint(stroke);
+		drawStrokeTail(stroke);
+	}
+	
+	public void drawStroke(Stroke stroke, int millis) {
+		drawStrokeFirstPoint(stroke);
+		drawStrokeTail(stroke, millis, 1);
+	}
+	
+	private void drawStrokeFirstPoint(Stroke stroke) {
 		Context2d cxt = canvas.getContext2d();
-		Coordinate firstCoord = stroke.getCoordinates().get(0);
+		Coordinate firstCoord = stroke.getCoordinatesAsArrayList().get(0);
 		
 		cxt.setFillStyle(stroke.getColor());
 		double thickness = stroke.getThickness();
 		cxt.fillRect(firstCoord.getXPos() - thickness/2, firstCoord.getYPos() - thickness/2, thickness, thickness);
+	}
+	
+	private void drawStrokeTail(Stroke stroke) {
+		Context2d cxt = canvas.getContext2d();
 		
 		cxt.setStrokeStyle(stroke.getColor());
 		cxt.setLineWidth(stroke.getThickness());
 		cxt.beginPath();
-		cxt.moveTo(firstCoord.getXPos(), firstCoord.getYPos());
-		for (Coordinate coord : stroke.getCoordinates()) {
+		for (Coordinate coord : stroke.getCoordinatesAsArrayList()) {
 			cxt.lineTo(coord.getXPos(), coord.getYPos());
 		}
 		
 		cxt.stroke();
 	}
 	
-	public void drawStroke(Stroke stroke, int millis) {
+	private void drawStrokeTail(final Stroke stroke, final int millis, final int startIndex) {
 		Context2d cxt = canvas.getContext2d();
 		ArrayList<Coordinate> coords = stroke.getCoordinatesAsArrayList();
+		Coordinate lastCoord = coords.get(startIndex-1);
+		Coordinate currentCoord = coords.get(startIndex);
 		
-		if (coords.size() == 1) {
-			Coordinate firstCoord = stroke.getCoordinates().get(0);
-			cxt.setFillStyle(stroke.getColor());
-			double thickness = stroke.getThickness();
-			cxt.fillRect(firstCoord.getXPos() - thickness/2, firstCoord.getYPos() - thickness/2, thickness, thickness);
-		}
+		cxt.beginPath();
+		cxt.setStrokeStyle(stroke.getColor());
+		cxt.setLineWidth(stroke.getThickness());
+		cxt.moveTo(lastCoord.getXPos(), lastCoord.getYPos());
+		cxt.lineTo(currentCoord.getXPos(), currentCoord.getYPos());
+		cxt.stroke();
 		
-		for (int i = 1; i < coords.size(); i++) {
-			Coordinate lastCoord = coords.get(i-1);
-			Coordinate currentCoord = coords.get(i);
-			
-			cxt.beginPath();
-			cxt.moveTo(lastCoord.getXPos(), lastCoord.getYPos());
-			cxt.lineTo(currentCoord.getXPos(), currentCoord.getYPos());
-			cxt.setStrokeStyle(stroke.getColor());
-			cxt.setLineWidth(stroke.getThickness());
-			cxt.stroke();
-			
-//			try {	// TODO gwt-issue?
-//				Thread.sleep(millis);
-//			} catch (InterruptedException e) {
-//				Thread.currentThread().interrupt();
-//				return;
-//			}
+		if (startIndex+1 < coords.size()) {
+			new Timer() {
+				@Override
+				public void run() {
+					drawStrokeTail(stroke, millis, startIndex+1);
+				}
+			}.schedule(millis);
 		}
 		
 	}
@@ -157,7 +161,8 @@ public class DrawComponentWidget extends SimplePanel {
 	
 	private void extendCurrentStroke(int x, int y) {
 		if (currentStroke != null) {
-			Coordinate lastCoordinate = currentStroke.getCoordinates().get(currentStroke.getCoordinates().size()-1);
+			ArrayList<Coordinate> coords = currentStroke.getCoordinatesAsArrayList();
+			Coordinate lastCoordinate = coords.get(coords.size()-1);
 			Context2d cxt = canvas.getContext2d();
 			
 			cxt.setStrokeStyle(currentStroke.getColor());

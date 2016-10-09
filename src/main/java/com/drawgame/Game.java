@@ -15,12 +15,12 @@ public class Game {
 	public Game() {
 		drawing = new Drawing();
 		
-		Stroke stroke1 = new Stroke("#00F", 3.0);
+		Stroke stroke1 = new Stroke("#00F", 5.0);
 		stroke1.addCoordinate(new Coordinate(100, 50));
 		stroke1.addCoordinate(new Coordinate(100, 150));
 		stroke1.addCoordinate(new Coordinate(110, 140));
 		
-		Stroke stroke2 = new Stroke("#00F", 3.0);
+		Stroke stroke2 = new Stroke("#00F", 5.0);
 		stroke2.addCoordinate(new Coordinate(75, 75));
 		stroke2.addCoordinate(new Coordinate(150, 75));
 		
