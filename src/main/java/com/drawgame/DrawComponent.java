@@ -8,9 +8,6 @@ import com.drawgame.client.drawcomponent.Stroke;
 
 @SuppressWarnings("serial")
 public class DrawComponent extends com.vaadin.ui.AbstractComponent {
-
-	// TODO delete this
-	private DrawComponent thisDrawComponent = this;
 	
 	private DrawComponentServerRpc rpc = new DrawComponentServerRpc() {
 		
@@ -21,7 +18,7 @@ public class DrawComponent extends com.vaadin.ui.AbstractComponent {
 
 		@Override
 		public void addStrokeToDrawing(Stroke stroke) {
-			GameStorage.defaultGame.addStroke(stroke, thisDrawComponent);
+			GameStorage.defaultGame.addStroke(stroke, DrawComponent.this);
 		}
 
 		@Override

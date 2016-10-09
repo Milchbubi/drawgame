@@ -4,12 +4,21 @@ import java.util.ArrayList;
 
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Touch;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.event.dom.client.TouchMoveEvent;
+import com.google.gwt.event.dom.client.TouchMoveHandler;
+import com.google.gwt.event.dom.client.TouchStartEvent;
+import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -45,6 +54,7 @@ public class DrawComponentWidget extends SimplePanel {
 //		canvas.addMouseUpHandler(event -> {
 //			finishCurrentStroke();
 //		});
+		
 		canvas.addMouseDownHandler(new MouseDownHandler() {
 			@Override
 			public void onMouseDown(MouseDownEvent event) {
@@ -57,10 +67,40 @@ public class DrawComponentWidget extends SimplePanel {
 				extendCurrentStroke(event.getX(), event.getY());
 			}
 		});
+		
 		canvas.addMouseUpHandler(new MouseUpHandler() {
 			@Override
 			public void onMouseUp(MouseUpEvent event) {
-				finishCurrentStroke();	
+				finishCurrentStroke();
+			}
+		});
+		
+		canvas.addTouchStartHandler(new TouchStartHandler() {
+			@Override
+			public void onTouchStart(TouchStartEvent event) {
+				JsArray<Touch> touches = event.getTouches();
+				if (touches.length() == 1) {
+					Touch touch = touches.get(0);
+					Element drawElement = DrawComponentWidget.this.getElement();
+					beginCurrentStroke(touch.getRelativeX(drawElement), touch.getRelativeY(drawElement));
+				}
+			}
+		});
+		canvas.addTouchMoveHandler(new TouchMoveHandler() {
+			@Override
+			public void onTouchMove(TouchMoveEvent event) {
+				JsArray<Touch> touches = event.getTouches();
+				if (touches.length() == 1) {
+					Touch touch = touches.get(0);
+					Element drawElement = DrawComponentWidget.this.getElement();
+					extendCurrentStroke(touch.getRelativeX(drawElement), touch.getRelativeY(drawElement));
+				}
+			}
+		});
+		canvas.addTouchEndHandler(new TouchEndHandler() {
+			@Override
+			public void onTouchEnd(TouchEndEvent event) {
+				finishCurrentStroke();
 			}
 		});
 	}
@@ -68,8 +108,8 @@ public class DrawComponentWidget extends SimplePanel {
 	private void setCanvasSize() {
 		int width = Window.getClientWidth();
 		int height = Window.getClientHeight();
-		canvas.getCanvasElement().setWidth(width);
-		canvas.getCanvasElement().setHeight(height);
+		canvas.getCanvasElement().setWidth(width-50);	// TODO css hide overflow instead
+		canvas.getCanvasElement().setHeight(height-50);	// TODO css hide overflow instead
 	}
 	
 	public void setDrawing(Drawing drawing) {
