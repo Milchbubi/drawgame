@@ -32,7 +32,29 @@
 @import "../valo/valo.scss";
 
 @mixin drawgametheme {
-  @include valo;
+	@include valo;
+	
+	// Insert your own theme rules here
+	.drawcomponent {
+		background: #FFF;
+	}
 
-  // Insert your own theme rules here
+	.colorPickerWidget {
+		position: fixed;
+		top: 15px;
+		left: 10px;
+	}
+	
+	.colorPickerWidget-button {
+		width: 50px;
+		height: 40px;
+		margin: 0px 5px 0px 5px;
+	}
+
+	.whiteWithShadow {
+		color: #FFF;
+		font-weight: bold;
+		text-shadow: 0px 0px 2px #000, 0px 0px 2px #000;
+	}
+
 }

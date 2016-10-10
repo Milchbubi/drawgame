@@ -21,19 +21,19 @@ import com.google.gwt.event.dom.client.TouchStartEvent;
 import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class DrawComponentWidget extends SimplePanel {
+public class DrawComponentWidget extends VerticalPanel {
 
 	public static final String CLASSNAME = "drawcomponent";
 
 	private Drawing drawing = new Drawing();
+	private Stroke currentStroke = null;
 	
 	private UltimateHandler<Stroke> strokeAddedHandler = null;
 	
+	private ColorPickerWidget colorPickerWidget = new ColorPickerWidget();
 	private Canvas canvas;
-	
-	private Stroke currentStroke = null;
 	
 	public DrawComponentWidget() {
 		setStyleName(CLASSNAME);
@@ -43,7 +43,9 @@ public class DrawComponentWidget extends SimplePanel {
 			Window.alert("Error: Canvas is not supported");
 		}
 		setCanvasSize();
-		setWidget(canvas);
+		
+		add(colorPickerWidget);
+		add(canvas);
 		
 //		canvas.addMouseDownHandler(event -> {
 //			beginCurrentStroke(event.getX(),event.getY());
@@ -189,7 +191,7 @@ public class DrawComponentWidget extends SimplePanel {
 	}
 	
 	private void beginCurrentStroke(int x, int y) {
-		currentStroke = new Stroke();
+		currentStroke = new Stroke(colorPickerWidget.getSelectedColor(), 3.0);
 		Context2d cxt = canvas.getContext2d();
 		
 		cxt.setFillStyle(currentStroke.getColor());
