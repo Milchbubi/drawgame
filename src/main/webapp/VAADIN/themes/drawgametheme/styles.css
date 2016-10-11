@@ -12989,3 +12989,20 @@ div.v-layout.v-horizontal.v-widget {
 	font-weight: bold;
 	text-shadow: 0px 0px 2px #000, 0px 0px 2px #000;
 }
+
+.drawgametheme .brushPickerWidget {
+	position: fixed;
+	top: 70px;
+	left: 15px;
+	width: 0px;
+	height: 0px;
+	overflow: visible;
+}
+
+.drawgametheme .brushPickerWidget-button {
+	display: block;
+	min-width: 40px;
+	min-height: 40px;
+	margin: 5px 0px 5px 0px;
+	padding: 0px;
+}

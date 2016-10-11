@@ -3,6 +3,7 @@ package com.drawgame.client.drawcomponent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 public class ColorPickerWidget extends HorizontalPanel {
@@ -12,6 +13,8 @@ public class ColorPickerWidget extends HorizontalPanel {
 	public static final String CLASSNAME_WHITE_WITH_SHADOW = "whiteWithShadow";
 	
 	private ColorButton buttonBlack = new ColorButton("#000");
+	private ColorButton buttonWhite = new ColorButton("#FFF");
+	private ColorButton buttonGray = new ColorButton("#777");
 	private ColorButton buttonRed = new ColorButton("#F00");
 	private ColorButton buttonBrown = new ColorButton("#730");
 	private ColorButton buttonOrange = new ColorButton("#F70");
@@ -19,8 +22,7 @@ public class ColorPickerWidget extends HorizontalPanel {
 	private ColorButton buttonGreen = new ColorButton("#0F0");
 	private ColorButton buttonTeal = new ColorButton("#0FF");
 	private ColorButton buttonBlue = new ColorButton("#00F");
-	private ColorButton buttonGray = new ColorButton("#777");
-	private ColorButton buttonWhite = new ColorButton("#FFF");
+	
 	
 	private ColorButton selectedButton = buttonBlack;
 	
@@ -30,6 +32,8 @@ public class ColorPickerWidget extends HorizontalPanel {
 		buttonBlack.select();
 		
 		add(buttonBlack);
+		add(buttonWhite);
+		add(buttonGray);
 		add(buttonRed);
 		add(buttonBrown);
 		add(buttonOrange);
@@ -37,8 +41,6 @@ public class ColorPickerWidget extends HorizontalPanel {
 		add(buttonGreen);
 		add(buttonTeal);
 		add(buttonBlue);
-		add(buttonGray);
-		add(buttonWhite);
 	}
 	
 	public String getSelectedColor() {
