@@ -40,7 +40,6 @@ public class DrawComponentWidget extends VerticalPanel {
 	private ColorPickerWidget colorPickerWidget = new ColorPickerWidget();
 	private BrushPickerWidget brushPickerWidget = new BrushPickerWidget();
 	private Canvas canvas;
-	private Label noteLabel = new Label();
 	
 	public DrawComponentWidget() {
 		setStyleName(CLASSNAME);
@@ -54,7 +53,6 @@ public class DrawComponentWidget extends VerticalPanel {
 		add(colorPickerWidget);
 		add(brushPickerWidget);
 		add(canvas);
-		add(noteLabel);
 		
 //		canvas.addMouseDownHandler(event -> {
 //			beginCurrentStroke(event.getX(),event.getY());
@@ -227,7 +225,6 @@ public class DrawComponentWidget extends VerticalPanel {
 	private void extendCurrentStroke(int x, int y) {
 		if (currentStroke != null) {
 			ArrayList<Coordinate> coords = currentStroke.getCoordinatesAsArrayList();
-			noteLabel.setText("size: " + coords.size());
 			Coordinate lastCoordinate = coords.get(coords.size()-1);
 			
 			double xDiff = x - lastCoordinate.getXPos();

@@ -38,7 +38,7 @@ public class Game {
 	
 	public synchronized void addStroke(Stroke stroke, DrawComponent drawComponent) {
 		drawing.addStroke(stroke);
-		System.out.println(drawing.getStrokesAsArrayList().size());
+
 		for (DrawComponent currentComp : registeredDrawComponents) {
 			if (!drawComponent.equals(currentComp)) {
 				currentComp.addStroke(stroke);
