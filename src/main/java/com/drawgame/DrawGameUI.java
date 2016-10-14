@@ -4,10 +4,14 @@ import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -23,11 +27,22 @@ import com.vaadin.ui.VerticalLayout;
 @Theme("drawgametheme")
 public class DrawGameUI extends UI {
 
+	public static final String CLASSNAME = "drawGameUI";
+	
+	VerticalLayout layout = new VerticalLayout();
+	MenuComponent menu = new MenuComponent();
+	Panel drawPanel = new Panel();
+	
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        DrawComponent drawComponent = new DrawComponent();
+        GameComponent gameComponent = new SimpleGameComponent();
+        drawPanel.setContent(gameComponent);
         
-        setContent(drawComponent);
+        setStyleName(CLASSNAME);
+        
+        layout.addComponents(menu, drawPanel);
+        setContent(layout);
+        
     }
 
     @WebServlet(urlPatterns = "/*", name = "DrawGameUIServlet", asyncSupported = true)

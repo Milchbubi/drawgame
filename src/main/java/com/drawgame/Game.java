@@ -8,7 +8,7 @@ import com.drawgame.client.drawcomponent.Stroke;
 
 public class Game {
 
-	private ArrayList<DrawComponent> registeredDrawComponents = new ArrayList<DrawComponent>(5);
+	private ArrayList<GameComponent> registeredComponents = new ArrayList<GameComponent>(5);
 	
 	private Drawing drawing;
 	
@@ -28,20 +28,20 @@ public class Game {
 		drawing.addStroke(stroke2);
 	}
 	
-	public synchronized void registerDrawComponents(DrawComponent drawComponent) {
-		registeredDrawComponents.add(drawComponent);
+	public synchronized void registerComponent(GameComponent component) {
+		registeredComponents.add(component);
 	}
 	
-	public synchronized void deregisterDrawComponents(DrawComponent drawComponent) {
-		registeredDrawComponents.remove(drawComponent);
+	public synchronized void deregisterComponent(GameComponent component) {
+		registeredComponents.remove(component);
 	}
 	
-	public synchronized void addStroke(Stroke stroke, DrawComponent drawComponent) {
+	public synchronized void addStroke(Stroke stroke, GameComponent author) {
 		drawing.addStroke(stroke);
 
-		for (DrawComponent currentComp : registeredDrawComponents) {
-			if (!drawComponent.equals(currentComp)) {
-				currentComp.addStroke(stroke);
+		for (GameComponent currentComp : registeredComponents) {
+			if (!author.equals(currentComp)) {
+				currentComp.addStrokeToClient(stroke);
 			}
 		}
 	}

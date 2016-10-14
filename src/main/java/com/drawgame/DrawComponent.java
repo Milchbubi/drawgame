@@ -3,22 +3,22 @@ package com.drawgame;
 import com.drawgame.client.drawcomponent.DrawComponentClientRpc;
 import com.drawgame.client.drawcomponent.DrawComponentServerRpc;
 import com.drawgame.client.drawcomponent.DrawComponentState;
-import com.drawgame.client.drawcomponent.Drawing;
 import com.drawgame.client.drawcomponent.Stroke;
 
 @SuppressWarnings("serial")
 public class DrawComponent extends com.vaadin.ui.AbstractComponent {
 	
+	private GameComponent gameComponent;
+	
 	private DrawComponentServerRpc rpc = new DrawComponentServerRpc() {
 		
 		public void loadDrawing() {
-			Drawing drawing = GameStorage.defaultGame.getDrawing();
-			getRpcProxy(DrawComponentClientRpc.class).setDrawing(drawing);
+			getRpcProxy(DrawComponentClientRpc.class).setDrawing(gameComponent.getDrawing());
 		}
 
 		@Override
 		public void addStrokeToDrawing(Stroke stroke) {
-			GameStorage.defaultGame.addStroke(stroke, DrawComponent.this);
+			gameComponent.addStrokeToServer(stroke);
 		}
 
 		@Override
@@ -28,10 +28,12 @@ public class DrawComponent extends com.vaadin.ui.AbstractComponent {
 		
 	};
 
-	public DrawComponent() {
+	public DrawComponent(GameComponent gameComponent) {
+		this.gameComponent = gameComponent;
+		
 		registerRpc(rpc);
-		GameStorage.defaultGame.registerDrawComponents(this);
-		rpc.loadDrawing();
+		
+		loadComponent();
 	}
 
 	@Override
@@ -41,6 +43,10 @@ public class DrawComponent extends com.vaadin.ui.AbstractComponent {
 	
 	public void addStroke(Stroke stroke) {
 		getRpcProxy(DrawComponentClientRpc.class).addStroke(stroke);
+	}
+	
+	public void loadComponent() {
+		rpc.loadDrawing();
 	}
 	
 }

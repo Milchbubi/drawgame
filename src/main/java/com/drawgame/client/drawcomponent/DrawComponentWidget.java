@@ -2,6 +2,7 @@ package com.drawgame.client.drawcomponent;
 
 import java.util.ArrayList;
 
+import com.drawgame.client.drawcomponent.ZoomWidget.CanvasSizeChangeHandler;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.core.client.JsArray;
@@ -27,6 +28,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class DrawComponentWidget extends VerticalPanel {
 
 	public static final String CLASSNAME = "drawcomponent";
+	public static final String CLASSNAME_CANVAS = CLASSNAME + "-canvas";
 	
 	public static final int DRAW_STROKE_ANIMATED_MILLIS = 40;
 	public static final int DRAW_STROKE_ANIMATED_COUNT = 4;
@@ -39,10 +41,11 @@ public class DrawComponentWidget extends VerticalPanel {
 	
 	private ColorPickerWidget colorPickerWidget = new ColorPickerWidget();
 	private BrushPickerWidget brushPickerWidget = new BrushPickerWidget();
+	private ZoomWidget zoomWidget = new ZoomWidget();
 	private Canvas canvas;
+	private Label debugLabel = new Label("debugLabel");
 	
 	public DrawComponentWidget() {
-		setStyleName(CLASSNAME);
 		
 		canvas = Canvas.createIfSupported();
 		if (canvas == null) {
@@ -50,9 +53,21 @@ public class DrawComponentWidget extends VerticalPanel {
 		}
 		setCanvasSize();
 		
+		setStyleName(CLASSNAME);
+		canvas.setStyleName(CLASSNAME_CANVAS);
+		
 		add(colorPickerWidget);
 		add(brushPickerWidget);
+		add(zoomWidget);
 		add(canvas);
+		add(debugLabel);
+		
+		zoomWidget.setCanvasSizeChangeHandler(new CanvasSizeChangeHandler() {
+			@Override
+			public void onCanvasSizeChange() {
+				setCanvasSize();
+			}
+		});
 		
 //		canvas.addMouseDownHandler(event -> {
 //			beginCurrentStroke(event.getX(),event.getY());
@@ -88,6 +103,7 @@ public class DrawComponentWidget extends VerticalPanel {
 			@Override
 			public void onTouchStart(TouchStartEvent event) {
 				JsArray<Touch> touches = event.getTouches();
+				debugLabel.setText("touches" + touches.length());
 				if (touches.length() == 1) {
 					Touch touch = touches.get(0);
 					Element drawElement = DrawComponentWidget.this.getElement();
@@ -99,7 +115,10 @@ public class DrawComponentWidget extends VerticalPanel {
 			@Override
 			public void onTouchMove(TouchMoveEvent event) {
 				JsArray<Touch> touches = event.getTouches();
+				debugLabel.setText("touches" + touches.length());
 				if (touches.length() == 1) {
+					event.preventDefault(); // prevent scrolling
+					
 					Touch touch = touches.get(0);
 					Element drawElement = DrawComponentWidget.this.getElement();
 					extendCurrentStroke(touch.getRelativeX(drawElement), touch.getRelativeY(drawElement));
@@ -115,14 +134,14 @@ public class DrawComponentWidget extends VerticalPanel {
 	}
 
 	private void setCanvasSize() {
-		int width = Window.getClientWidth();
-		int height = Window.getClientHeight();
-		canvas.getCanvasElement().setWidth(width-50);	// TODO css hide overflow instead
-		canvas.getCanvasElement().setHeight(height-50);	// TODO css hide overflow instead
+		canvas.getCanvasElement().setWidth(zoomWidget.getCanvasWidth());
+		canvas.getCanvasElement().setHeight(zoomWidget.getCanvasHeight());
+		drawAll();
 	}
 	
-	public void setDrawing(Drawing drawing) {
-		this.drawing = drawing;
+	private void drawAll() {
+		if (null == drawing) return;
+		
 		Context2d cxt = canvas.getContext2d();
 		
 		cxt.clearRect(0, 0, canvas.getCanvasElement().getWidth(), canvas.getCanvasElement().getHeight());
@@ -130,6 +149,12 @@ public class DrawComponentWidget extends VerticalPanel {
 		for (Stroke stroke : drawing.getStrokesAsArrayList()) {
 			drawStroke(stroke);
 		}
+	}
+	
+	public void setDrawing(Drawing drawing) {
+		this.drawing = drawing;
+		
+		drawAll();
 	}
 	
 	public void setStrokeAddedHandler(UltimateHandler<Stroke> strokeAddedHandler) {
@@ -141,8 +166,10 @@ public class DrawComponentWidget extends VerticalPanel {
 		drawStrokeAnimated(stroke);
 	}
 	
-	public void drawStroke(Stroke stroke) {		
+	public void drawStroke(Stroke stroke) {
+		debugLabel.setText("drawing stroke first point");
 		drawStrokeFirstPoint(stroke);
+		debugLabel.setText("drawing stroke tail");
 		drawStrokeTail(stroke);
 	}
 	
@@ -168,7 +195,15 @@ public class DrawComponentWidget extends VerticalPanel {
 		cxt.setStrokeStyle(stroke.getColor());
 		cxt.setLineWidth(stroke.getThickness());
 		cxt.beginPath();
+		ArrayList<Coordinate> coords = stroke.getCoordinatesAsArrayList();	// FIXME debug, sometimes gets broken for some reason
+		int i = 0;
 		for (Coordinate coord : stroke.getCoordinatesAsArrayList()) {
+			debugLabel.setText("drawing coordinate at index " + (i++) + " out of " + (coords.size()-1));
+			String lastCoord = "";
+			if (i > 0) {
+				lastCoord = "(" + coords.get(i-1).getXPos() + "," + coords.get(i-1).getXPos() + ")";
+			}
+			debugLabel.setText("lastCoord:" + lastCoord + ", coord:(" + coord.getXPos() + "," + coord.getYPos() + ")");
 			cxt.lineTo(coord.getXPos(), coord.getYPos());
 		}
 		

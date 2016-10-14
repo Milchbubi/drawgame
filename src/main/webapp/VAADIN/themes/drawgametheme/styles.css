@@ -12968,14 +12968,41 @@ div.v-layout.v-horizontal.v-widget {
 	overflow: hidden;
 }
 
+.drawgametheme .drawGameUI {
+	overflow: hidden;
+}
+
+.drawgametheme .menu {
+	position: fixed;
+	width: auto !important;
+	z-index: 10;
+}
+
+.drawgametheme .gameComponent-description {
+	position: fixed;
+	margin-left: 100px;
+	width: auto !important;
+	font-size: 30px;
+	color: #000;
+	background: #FFF;
+}
+
 .drawgametheme .drawcomponent {
 	background: #FFF;
 }
 
+.drawgametheme .drawcomponent-canvas {
+	width: 100%;
+	height: 100%;
+	border-style: groove;
+	border-color: #DEF;
+	border-width: 0px 4px 4px 0px;
+}
+
 .drawgametheme .colorPickerWidget {
 	position: fixed;
-	top: 15px;
-	left: 10px;
+	top: 45px;
+	left: 15px;
 }
 
 .drawgametheme .colorPickerWidget-button {
@@ -12992,7 +13019,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .drawgametheme .brushPickerWidget {
 	position: fixed;
-	top: 70px;
+	top: 85px;
 	left: 15px;
 	width: 0px;
 	height: 0px;
@@ -13004,5 +13031,48 @@ div.v-layout.v-horizontal.v-widget {
 	min-width: 40px;
 	min-height: 40px;
 	margin: 5px 0px 5px 0px;
+	padding: 5px;
 	padding: 0px;
+}
+
+.drawgametheme .zoomWidget {
+	position: fixed;
+	top: 85px;
+	right: 15px;
+}
+
+.drawgametheme .zoomWidget-freezeDrawingButton {
+	position: fixed;
+	top: 10px;
+	right: 15px;
+	padding: 5px 20px;
+	font-size: 35px;
+	color: #000;
+	background: #DDD;
+	border-radius: 3px;
+	cursor: pointer;
+	z-index: 10;
+}
+
+.drawgametheme .zoomWidget-freezeTransparentPanel {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	right: 0px;
+	background: #07F;
+	opacity: 0.4;
+}
+
+.drawgametheme .zoomWidget-freezeTransparentPanel-label {
+	text-align: center;
+	margin-top: 100px;
+	font-size: 25px;
+	color: #000;
+}
+
+.drawgametheme .zoomWidget-canvasSizeButton {
+	margin: 5px 0px 5px 0px;
+	float: right;
+	font-size: 20px;
 }

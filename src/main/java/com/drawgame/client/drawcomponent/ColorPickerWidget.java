@@ -14,15 +14,14 @@ public class ColorPickerWidget extends HorizontalPanel {
 	
 	private ColorButton buttonBlack = new ColorButton("#000");
 	private ColorButton buttonWhite = new ColorButton("#FFF");
-	private ColorButton buttonGray = new ColorButton("#777");
-	private ColorButton buttonRed = new ColorButton("#F00");
-	private ColorButton buttonBrown = new ColorButton("#730");
-	private ColorButton buttonOrange = new ColorButton("#F70");
-	private ColorButton buttonYellow = new ColorButton("#FF0");
-	private ColorButton buttonGreen = new ColorButton("#0F0");
-	private ColorButton buttonTeal = new ColorButton("#0FF");
 	private ColorButton buttonBlue = new ColorButton("#00F");
-	
+	private ColorButton buttonGreen = new ColorButton("#0F0");
+	private ColorButton buttonRed = new ColorButton("#F00");
+	private ColorButton buttonYellow = new ColorButton("#FF0");
+	private ColorButton buttonBrown = new ColorButton("#730");
+	private ColorButton buttonGray = new ColorButton("#777");
+	private ColorButton buttonTeal = new ColorButton("#0FF");
+	private ColorButton buttonOrange = new ColorButton("#F70");
 	
 	private ColorButton selectedButton = buttonBlack;
 	
@@ -33,14 +32,16 @@ public class ColorPickerWidget extends HorizontalPanel {
 		
 		add(buttonBlack);
 		add(buttonWhite);
-		add(buttonGray);
-		add(buttonRed);
-		add(buttonBrown);
-		add(buttonOrange);
-		add(buttonYellow);
-		add(buttonGreen);
-		add(buttonTeal);
 		add(buttonBlue);
+		add(buttonGreen);
+		add(buttonRed);
+		add(buttonYellow);
+		add(buttonBrown);
+		add(buttonGray);
+		add(buttonOrange);
+		
+		add(buttonTeal);
+		
 	}
 	
 	public String getSelectedColor() {
