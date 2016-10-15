@@ -183,6 +183,7 @@ public class DrawComponentWidget extends VerticalPanel {
 	private void drawStrokeFirstPoint(Stroke stroke) {
 		Context2d cxt = canvas.getContext2d();
 		Coordinate firstCoord = stroke.getCoordinatesAsArrayList().get(0);
+		if (!debugCoordinateIsOk(firstCoord)) return;
 		
 		cxt.setFillStyle(stroke.getColor());
 		cxt.setFillStyle(stroke.getColor());
@@ -201,6 +202,7 @@ public class DrawComponentWidget extends VerticalPanel {
 		int i = 0;
 		for (Coordinate coord : stroke.getCoordinatesAsArrayList()) {
 			debugLabel.setText("drawing coordinate at index " + (i++) + " out of " + (coords.size()-1));
+			if (!debugCoordinateIsOk(coord)) return;
 			String lastCoord = "";
 			if (i > 0) {
 				lastCoord = "(" + coords.get(i-1).getXPos() + "," + coords.get(i-1).getXPos() + ")";
@@ -210,6 +212,15 @@ public class DrawComponentWidget extends VerticalPanel {
 		}
 		
 		cxt.stroke();
+	}
+	
+	private boolean debugCoordinateIsOk(Coordinate coord) {
+		// FIXME delete this method, should always return true but doesn't?
+		if (null == coord) {
+			Window.alert("coord is null");
+			return false;
+		}
+		return true;
 	}
 	
 	private void drawStrokeTailAnimated(final Stroke stroke, final double millisPerCoordinate, final int fromIndex) {
