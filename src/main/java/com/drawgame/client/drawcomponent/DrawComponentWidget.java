@@ -30,12 +30,12 @@ public class DrawComponentWidget extends VerticalPanel {
 	public static final String CLASSNAME = "drawcomponent";
 	public static final String CLASSNAME_CANVAS = CLASSNAME + "-canvas";
 	
-	public static final int DRAW_STROKE_ANIMATED_MILLIS = 40;
 	public static final int DRAW_STROKE_ANIMATED_COUNT = 4;
 	public static final int DRAW_STROKE_ANIMATED_REDRAW_COUNT = 2;
 
 	private Drawing drawing = new Drawing();
 	private Stroke currentStroke = null;
+	private long currentStrokeStartedMillis;
 	
 	private UltimateHandler<Stroke> strokeAddedHandler = null;
 	
@@ -174,8 +174,10 @@ public class DrawComponentWidget extends VerticalPanel {
 	}
 	
 	public void drawStrokeAnimated(Stroke stroke) {
+		double millisPerCoordinate = ((double)stroke.getDurationMillis()) / stroke.getCoordinatesAsArrayList().size();
+		
 		drawStrokeFirstPoint(stroke);
-		drawStrokeTailAnimated(stroke, 0);
+		drawStrokeTailAnimated(stroke, millisPerCoordinate, 0);
 	}
 	
 	private void drawStrokeFirstPoint(Stroke stroke) {
@@ -210,7 +212,7 @@ public class DrawComponentWidget extends VerticalPanel {
 		cxt.stroke();
 	}
 	
-	private void drawStrokeTailAnimated(final Stroke stroke, final int fromIndex) {
+	private void drawStrokeTailAnimated(final Stroke stroke, final double millisPerCoordinate, final int fromIndex) {
 		int lastIndex = stroke.getCoordinatesAsArrayList().size()-1;
 		int toIndex = fromIndex
 				+ DRAW_STROKE_ANIMATED_REDRAW_COUNT
@@ -222,9 +224,9 @@ public class DrawComponentWidget extends VerticalPanel {
 			new Timer() {
 				@Override
 				public void run() {
-					drawStrokeTailAnimated(stroke, fromIndex+DRAW_STROKE_ANIMATED_COUNT);
+					drawStrokeTailAnimated(stroke, millisPerCoordinate, fromIndex+DRAW_STROKE_ANIMATED_COUNT);
 				}
-			}.schedule(DRAW_STROKE_ANIMATED_MILLIS);
+			}.schedule((int)(millisPerCoordinate * DRAW_STROKE_ANIMATED_COUNT));
 		}
 		
 	}
@@ -251,6 +253,7 @@ public class DrawComponentWidget extends VerticalPanel {
 		currentStroke = new Stroke(
 				colorPickerWidget.getSelectedColor(), 
 				brushPickerWidget.getSelectedThickness());
+		currentStrokeStartedMillis = System.currentTimeMillis();
 		
 		currentStroke.addCoordinate(new Coordinate(x, y));
 		
@@ -275,8 +278,11 @@ public class DrawComponentWidget extends VerticalPanel {
 	}
 	
 	private void finishCurrentStroke() {
+		currentStroke.setDurationMillis(System.currentTimeMillis() - currentStrokeStartedMillis);
+		
 		drawing.addStroke(currentStroke);
 		strokeAddedHandler.onEvent(currentStroke);
+		
 		currentStroke = null;
 	}
 	

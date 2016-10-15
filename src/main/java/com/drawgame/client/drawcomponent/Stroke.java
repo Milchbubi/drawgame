@@ -13,6 +13,8 @@ public class Stroke implements Serializable {
 	
 	private ArrayList<Coordinate> coordinates;
 	
+	private long durationMillis = 0;
+	
 	public Stroke() {
 		this("#000000", 3.0);
 	}
@@ -60,6 +62,14 @@ public class Stroke implements Serializable {
 	
 	public void setCoordinates(ArrayList<Coordinate> coordinates) {
 		this.coordinates = coordinates;
+	}
+	
+	public long getDurationMillis() {
+		return durationMillis;
+	}
+	
+	public void setDurationMillis(long durationMillis) {
+		this.durationMillis = durationMillis;
 	}
 	
 }
