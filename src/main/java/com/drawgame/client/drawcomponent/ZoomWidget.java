@@ -1,8 +1,10 @@
 package com.drawgame.client.drawcomponent;
 
+import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -17,9 +19,7 @@ public class ZoomWidget extends VerticalPanel {
 	public static final String CLASSNAME_FREEZE_TRANSPARENT_PANEL_LABEL = CLASSNAME_FREEZE_TRANSPARENT_PANEL + "-label";
 	public static final String CLASSNAME_CANVAS_SIZE_BUTTON = CLASSNAME + "-canvasSizeButton";
 	
-	private int canvasWidth;
-	private int canvasHeight;
-	
+	private final Canvas referencedCanvas;
 	private CanvasSizeChangeHandler onCanvasSizeChangeHandler = null;
 	
 	private ToggleButton freezeDrawingButton = new ToggleButton("Zoom", "Draw");
@@ -29,7 +29,8 @@ public class ZoomWidget extends VerticalPanel {
 	private Button decCanvasSizeButton = new Button("*0.8");
 	private Button restoreCanvasSizeButton = new Button("1.0");
 	
-	public ZoomWidget() {
+	public ZoomWidget(Canvas referenceCanvas) {
+		this.referencedCanvas = referenceCanvas;
 		
 		setStyleName(CLASSNAME);
 		freezeDrawingButton.setStyleName(CLASSNAME_FREEZE_DRAWING_BUTTON);
@@ -45,8 +46,13 @@ public class ZoomWidget extends VerticalPanel {
 		add(decCanvasSizeButton);
 		add(restoreCanvasSizeButton);
 		
-		restoreCanvasSize();
-		
+		referencedCanvas.addAttachHandler(new Handler() {
+			@Override
+			public void onAttachOrDetach(AttachEvent event) {
+				restoreCanvasSize();
+			}
+		});
+
 		freezeDrawingButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -61,9 +67,9 @@ public class ZoomWidget extends VerticalPanel {
 		incCanvasSizeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				canvasWidth *= 1.25;
-				canvasHeight *= 1.25;
-				setFreezeTransparentSize();
+				referencedCanvas.setCoordinateSpaceWidth( (int)(referencedCanvas.getCoordinateSpaceWidth()*1.25) );
+				referencedCanvas.setCoordinateSpaceHeight( (int)(referencedCanvas.getCoordinateSpaceHeight()*1.25) );
+				
 				if (onCanvasSizeChangeHandler != null) onCanvasSizeChangeHandler.onCanvasSizeChange();
 			}
 		});
@@ -71,9 +77,9 @@ public class ZoomWidget extends VerticalPanel {
 		decCanvasSizeButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				canvasWidth *= 0.8;
-				canvasHeight *= 0.8;
-				setFreezeTransparentSize();
+				referencedCanvas.setCoordinateSpaceWidth( (int)(referencedCanvas.getCoordinateSpaceWidth()*0.8) );
+				referencedCanvas.setCoordinateSpaceHeight( (int)(referencedCanvas.getCoordinateSpaceHeight()*0.8) );
+				
 				if (onCanvasSizeChangeHandler != null) onCanvasSizeChangeHandler.onCanvasSizeChange();
 			}
 		});
@@ -88,27 +94,21 @@ public class ZoomWidget extends VerticalPanel {
 	}
 	
 	private void restoreCanvasSize() {
-		canvasWidth = Window.getClientWidth();
-		canvasHeight = Window.getClientHeight();
-		setFreezeTransparentSize();
+		referencedCanvas.setCoordinateSpaceWidth( referencedCanvas.getOffsetWidth() );
+		referencedCanvas.setCoordinateSpaceHeight( referencedCanvas.getOffsetHeight() );
+		
 		if (onCanvasSizeChangeHandler != null) onCanvasSizeChangeHandler.onCanvasSizeChange();
-	}
-	
-	private void setFreezeTransparentSize() {
-		freezeTransparentPanel.setWidth(canvasWidth + "px");
-		freezeTransparentPanel.setHeight(canvasHeight + "px");
-	}
-	
-	public int getCanvasWidth() {
-		return canvasWidth;
-	}
-	
-	public int getCanvasHeight() {
-		return canvasHeight;
 	}
 	
 	public void setCanvasSizeChangeHandler(CanvasSizeChangeHandler onCanvasSizeChangeHandler) {
 		this.onCanvasSizeChangeHandler = onCanvasSizeChangeHandler;
+	}
+	
+	public Coordinate canvasPosFromPixelPos(int clientX, int clientY) {
+		return new Coordinate(
+				(int)(clientX * referencedCanvas.getCoordinateSpaceWidth() / referencedCanvas.getOffsetWidth()), 
+				(int)(clientY * referencedCanvas.getCoordinateSpaceHeight() / referencedCanvas.getOffsetHeight())
+				);
 	}
 	
 	public interface CanvasSizeChangeHandler {

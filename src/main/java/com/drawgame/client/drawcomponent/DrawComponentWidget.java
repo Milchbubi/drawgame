@@ -41,7 +41,7 @@ public class DrawComponentWidget extends VerticalPanel {
 	
 	private ColorPickerWidget colorPickerWidget = new ColorPickerWidget();
 	private BrushPickerWidget brushPickerWidget = new BrushPickerWidget();
-	private ZoomWidget zoomWidget = new ZoomWidget();
+	private ZoomWidget zoomWidget;
 	private Canvas canvas;
 	private Label debugLabel = new Label("debugLabel");
 	
@@ -51,10 +51,12 @@ public class DrawComponentWidget extends VerticalPanel {
 		if (canvas == null) {
 			Window.alert("Error: Canvas is not supported");
 		}
-		setCanvasSize();
+		
+		zoomWidget = new ZoomWidget(canvas);
 		
 		setStyleName(CLASSNAME);
 		canvas.setStyleName(CLASSNAME_CANVAS);
+		canvas.setPixelSize(Window.getClientWidth(), Window.getClientHeight());
 		
 		add(colorPickerWidget);
 		add(brushPickerWidget);
@@ -65,7 +67,7 @@ public class DrawComponentWidget extends VerticalPanel {
 		zoomWidget.setCanvasSizeChangeHandler(new CanvasSizeChangeHandler() {
 			@Override
 			public void onCanvasSizeChange() {
-				setCanvasSize();
+				drawAll();
 			}
 		});
 		
@@ -82,13 +84,13 @@ public class DrawComponentWidget extends VerticalPanel {
 		canvas.addMouseDownHandler(new MouseDownHandler() {
 			@Override
 			public void onMouseDown(MouseDownEvent event) {
-				beginCurrentStroke(event.getX(),event.getY());
+				beginCurrentStroke(zoomWidget.canvasPosFromPixelPos(event.getX(),event.getY()));
 			}
 		});
 		canvas.addMouseMoveHandler(new MouseMoveHandler() {
 			@Override
 			public void onMouseMove(MouseMoveEvent event) {
-				extendCurrentStroke(event.getX(), event.getY());
+				extendCurrentStroke(zoomWidget.canvasPosFromPixelPos(event.getX(),event.getY()));
 			}
 		});
 		
@@ -107,7 +109,9 @@ public class DrawComponentWidget extends VerticalPanel {
 				if (touches.length() == 1) {
 					Touch touch = touches.get(0);
 					Element drawElement = DrawComponentWidget.this.getElement();
-					beginCurrentStroke(touch.getRelativeX(drawElement), touch.getRelativeY(drawElement));
+					beginCurrentStroke(zoomWidget.canvasPosFromPixelPos(
+							touch.getRelativeX(drawElement), 
+							touch.getRelativeY(drawElement)));
 				}
 			}
 		});
@@ -121,7 +125,9 @@ public class DrawComponentWidget extends VerticalPanel {
 					
 					Touch touch = touches.get(0);
 					Element drawElement = DrawComponentWidget.this.getElement();
-					extendCurrentStroke(touch.getRelativeX(drawElement), touch.getRelativeY(drawElement));
+					extendCurrentStroke(zoomWidget.canvasPosFromPixelPos(
+							touch.getRelativeX(drawElement), 
+							touch.getRelativeY(drawElement)));
 				}
 			}
 		});
@@ -131,12 +137,6 @@ public class DrawComponentWidget extends VerticalPanel {
 				finishCurrentStroke();
 			}
 		});
-	}
-
-	private void setCanvasSize() {
-		canvas.getCanvasElement().setWidth(zoomWidget.getCanvasWidth());
-		canvas.getCanvasElement().setHeight(zoomWidget.getCanvasHeight());
-		drawAll();
 	}
 	
 	private void drawAll() {
@@ -260,29 +260,29 @@ public class DrawComponentWidget extends VerticalPanel {
 		cxt.stroke();
 	}
 	
-	private void beginCurrentStroke(int x, int y) {
+	private void beginCurrentStroke(Coordinate coord) {
 		currentStroke = new Stroke(
 				colorPickerWidget.getSelectedColor(), 
 				brushPickerWidget.getSelectedThickness());
 		currentStrokeStartedMillis = System.currentTimeMillis();
 		
-		currentStroke.addCoordinate(new Coordinate(x, y));
+		currentStroke.addCoordinate(coord);
 		
 		drawStrokeFirstPoint(currentStroke);
 	}
 	
-	private void extendCurrentStroke(int x, int y) {
+	private void extendCurrentStroke(Coordinate coord) {
 		if (currentStroke != null) {
 			ArrayList<Coordinate> coords = currentStroke.getCoordinatesAsArrayList();
 			Coordinate lastCoordinate = coords.get(coords.size()-1);
 			
-			double xDiff = x - lastCoordinate.getXPos();
-			double yDiff = y - lastCoordinate.getYPos();
+			double xDiff = coord.getXPos() - lastCoordinate.getXPos();
+			double yDiff = coord.getYPos() - lastCoordinate.getYPos();
 			if (Math.sqrt(xDiff*xDiff + yDiff*yDiff) < currentStroke.getThickness()/10) {
 				return;
 			}
 			
-			currentStroke.addCoordinate(new Coordinate(x, y));
+			currentStroke.addCoordinate(coord);
 			
 			drawStrokePart(currentStroke, coords.size()-3, coords.size()-1);
 		}
