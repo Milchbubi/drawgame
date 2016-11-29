@@ -72,7 +72,7 @@ public class DrawComponentWidget extends VerticalPanel {
 		});
 		
 //		canvas.addMouseDownHandler(event -> {
-//			beginCurrentStroke(event.getX(),event.getY());
+//			beginCurrentStroke(zoomWidget.canvasPosFromPixelPos(event.getX(),event.getY()));
 //		});
 //		canvas.addMouseMoveHandler(event -> {
 //			extendCurrentStroke(event.getX(), event.getY());

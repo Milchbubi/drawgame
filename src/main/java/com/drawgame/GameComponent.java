@@ -6,7 +6,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
-public abstract class GameComponent extends VerticalLayout {
+public abstract class GameComponent extends VerticalLayout implements RegistrableToGame {
 
 	public static final String CLASSNAME = "gameComponent";
 	public static final String CLASSNAME_DESCRIPTION = CLASSNAME + "-description";
@@ -37,10 +37,12 @@ public abstract class GameComponent extends VerticalLayout {
 		game.addStroke(stroke, this);
 	}
 	
+	@Override
 	public void addStrokeToClient(Stroke stroke) {
 		drawComponent.addStroke(stroke);
 	}
 	
+	@Override
 	public void loadComponent() {
 		drawComponent.loadComponent();
 	}
