@@ -66,6 +66,25 @@ public class GameStressTest {
 		}
 	}
 	
+	@Test
+	public void testClearDrawing() throws InterruptedException {
+		for (TestClient client : testClients) {
+			client.start();
+		}
+		
+		for (TestClient client : testClients) {
+			client.join();
+		}
+		
+		game.clearDrawing();
+		
+		for (TestClient client : testClients) {
+			assertTrue(
+					"client " + client.id + " was not notified, that drawing was cleared", 
+					client.gameComponent.getDrawing().getStrokesAsArrayList().isEmpty());
+		}
+	}
+	
 	private class StressTestGameComponent implements RegistrableToGame {
 
 		private final Game game;
