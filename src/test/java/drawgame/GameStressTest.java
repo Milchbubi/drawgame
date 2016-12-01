@@ -10,12 +10,13 @@ import org.junit.Test;
 
 import com.drawgame.Game;
 import com.drawgame.RegistrableToGame;
+import com.drawgame.client.drawcomponent.Drawing;
 import com.drawgame.client.drawcomponent.Stroke;
 
 public class GameStressTest {
 	
-	private static final int NUMBER_OF_CLIENTS = 200;
-	private static final int NUMBER_OF_STROKES_PER_CLIENT = 500;
+	private static final int NUMBER_OF_CLIENTS = 100;
+	private static final int NUMBER_OF_STROKES_PER_CLIENT = 200;
 	
 	private Game game;
 	
@@ -33,6 +34,8 @@ public class GameStressTest {
 	
 	@Test
 	public void testAddStroke() throws InterruptedException {
+		long startTime = System.currentTimeMillis();
+		
 		for (TestClient client : testClients) {
 			client.start();
 		}
@@ -41,14 +44,20 @@ public class GameStressTest {
 			client.join();
 		}
 		
+		long duration = System.currentTimeMillis() - startTime;
+		
 		ArrayList<Stroke> serverStrokes = game.getDrawing().getStrokesAsArrayList();
 		assertEquals(
 				"server misses strokes", 
 				NUMBER_OF_CLIENTS * NUMBER_OF_STROKES_PER_CLIENT, serverStrokes.size());
 		
 		for (TestClient client : testClients) {
+			System.out.println("needed " + duration + "ms " 
+					+ "to add " + NUMBER_OF_CLIENTS * NUMBER_OF_STROKES_PER_CLIENT + " strokes, " 
+					+ "validate outcome: " + client.id + "/" + (testClients.size()-1) + " " 
+					+ "(List.contains(..) consumes time)");
 			
-			ArrayList<Stroke> clientStrokes = client.gameComponent.getStrokes();
+			ArrayList<Stroke> clientStrokes = client.gameComponent.getDrawing().getStrokesAsArrayList();
 			assertEquals("client " + client.id + " misses strokes", serverStrokes.size(), clientStrokes.size());
 			
 			for (Stroke serverStroke : serverStrokes) {
@@ -61,32 +70,31 @@ public class GameStressTest {
 
 		private final Game game;
 		
-		private ArrayList<Stroke> strokes = 
-				new ArrayList<Stroke>(NUMBER_OF_CLIENTS * NUMBER_OF_STROKES_PER_CLIENT);
+		private Drawing drawing = new Drawing();
 		
 		public StressTestGameComponent(Game game) {
 			this.game = game;
 		}
 		
-		public void addStroke(Stroke stroke) {
+		public void addStrokeToServer(Stroke stroke) {
 //			System.out.println("sending stroke to server");
-			strokes.add(stroke);
+			drawing.addStroke(stroke);
 			game.addStroke(stroke, this);
 		}
 		
-		public ArrayList<Stroke> getStrokes() {
-			return this.strokes;
+		public Drawing getDrawing() {
+			return drawing;
 		}
 		
 		@Override
 		public void addStrokeToClient(Stroke stroke) {
 //			System.out.println("received stroke from server");
-			strokes.add(stroke);
+			drawing.addStroke(stroke);
 		}
 
 		@Override
 		public void loadComponent() {
-			strokes = game.getDrawing().getStrokesAsArrayList();
+			drawing = game.getDrawing();
 		}
 		
 	}
@@ -106,7 +114,7 @@ public class GameStressTest {
 		@Override
 		public void run() {
 			for (int i = 0; i < NUMBER_OF_STROKES_PER_CLIENT; i++) {
-				gameComponent.addStroke(new Stroke());
+				gameComponent.addStrokeToServer(new Stroke());
 			}
 		}
 	}

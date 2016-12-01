@@ -12,7 +12,7 @@ public class Drawing implements Serializable {
 	public Drawing() {
 	}
 	
-	public void addStroke(Stroke stroke) {
+	public synchronized void addStroke(Stroke stroke) {
 		strokes.add(stroke);
 	}
 	
